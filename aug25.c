@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 // this is a macro, careful with ';'
-#define tablesize 100000;
+#define tablesize 100000
 
 struct Link {
   char * data;
@@ -70,7 +70,7 @@ int main() {
   }
   for (int i = 0; i < tablesize; i++) {
     struct Link * ptr = hashtable[i];
-    while (ptr !== NULL) {
+    while (ptr != NULL) {
       printf("%d: %s\n", i, ptr -> data);
       ptr = ptr -> next;
     }
