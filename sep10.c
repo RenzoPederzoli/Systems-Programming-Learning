@@ -73,8 +73,8 @@ void shuffle(char * * A, int N) {
 
 int main(int argc, char * argv[]) {
   struct node * T = NULL, * U = NULL;
-  int p, i, numstrs, link1[2];
-  FILE * pipein;
+  int p, i, numstrs, link1[2], link2[2], ended1 = 0, ended2 = 0;
+  FILE * pipein1, * pipein2;
   if (argc != 2) {
     fprintf(stderr, "usage: %s numstrings\n", argv[0]);
     exit(1);
@@ -98,18 +98,45 @@ int main(int argc, char * argv[]) {
   pipe(link1);
   p = fork();
   if (p == 0) {
-    tree_out(T, link1[0]);
+    tree_out(T, link1[1]);
     close(link1[1]);
     exit(0);
   }
 
-  pipein = fdopen(link1[0], "r");
+  close(link1[1]);
+  pipe(link2);
+  p = fork();
+  if (p == 0) {
+    tree_out(T, link2[1]);
+    close(link2[1]);
+    exit(0);
+  }
+
+  close(link2[1]);
+  pipein1 = fdopen(link1[0], "r");
+  pipein2 = fdopen(link2[0], "r");
   for(i = 0; 1; i++) {
-    char s[100];
-    int n = fscanf(pipein, "%s", s);
-    if (n <= 0)
+    char s1[100], s2[100];
+    int n1 = fscanf(pipein1, "%s", s1);
+    if (n1 <= 0)
+      ended1 = 1;
+    int n2 = fscanf(pipein2, "%s", s2);
+    if (n2 <= 0)
+      ended2 = 1;
+    if (ended1 && ended2) {
+      printf("trees indentical\n");
       break;
-    printf("read somwething");
+    }
+    if (ended1 || ended2) {
+      printf("trees diff\n");
+      break;
+    }
+    if (strcmp(s1, s2) != 0) {
+      printf("tree diff\n");
+      break;
+    }
+    
+    printf("read(%d) got \"%S\" and \"%s\"\n", i,s1, s2);
   }
 }
   
